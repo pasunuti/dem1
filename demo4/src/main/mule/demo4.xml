@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ac537772-b7eb-405f-913b-4370455497c8" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="985b267b-e1d2-40b0-b6f1-ba7d8f926dd9" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="root" database="mydb" />
+	</db:config>
+	<flow name="demo4Flow" doc:id="be01eabd-f1a4-4f27-97f8-cfb628818eb7" >
+		<http:listener doc:name="select" doc:id="d1e9ea33-ff48-487a-b19f-f97db2b15495" config-ref="HTTP_Listener_config" path="/select"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2275b33e-0a55-4a0a-b9b1-2728e3f37ae0" message="Response from db"/>
+		<db:select doc:name="Select" doc:id="ce9066ed-626f-4521-8322-b3516497354c" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from Persons;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="6ccd6a61-653a-419b-b9dc-23058eed8c33" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="34033fa6-7f0a-46b7-83a0-47f2b005b3fe" message="Response from db::::#[payload]"/>
+	</flow>
+</mule>
